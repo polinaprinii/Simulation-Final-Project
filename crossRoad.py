@@ -13,11 +13,11 @@ class CrossRoad(object):
 # Initialisation
 random.seed([1, 2, 3])
 
-# Simulation time in minutes.
-SIM_TIME = 75.0
+# Simulation time in seconds.
+SIM_TIME = 3.0
 
 # Cars on the main road arrive at the crossroad according to a Poisson process with an average rate of 0.8 per second:
-Main_arrival_rate= 1
+Main_arrival_rate= 0.8
 Main_t_interarrival_mean= 1.0 / Main_arrival_rate
 
 # Cars on the local road arrive at the crossroad according to a Poisson process with an average rate of 0.5 per second:
@@ -30,12 +30,12 @@ Local_t_interarrival_mean= 1.0 / Local_arrival_rate
 # The time for a car at the head of the queue on the local road to depart (clear the intersection)
 # is modeled as a triangular distribution with specified minimum, maximum, and
 # mode.
-t_depart_left= 0.3; t_depart_mode= 0.7; t_depart_right= 1.1
+t_depart_left= 1.6; t_depart_mode= 2.0; t_depart_right= 2.4
 
 # Initially, no cars are waiting at the crossroad incoming from the local road:
 queue= deque()
 
-# Track number of cars on the local road:
+# Track number of cars on the main road:
 main_arrival_count= main_departure_count= 0
 
 # Track number of cars on the local road:
@@ -76,19 +76,22 @@ name = ""
 
 def carM():
 
-    global mainCar, main_arrival_count, env, name, mainCar, queue
-    mainCar = {"name": name, "time": env.now}
+    global mainCar, main_arrival_count, env, name, queue
     name = main_arrival_count
-
+    mainCar = {"name": name, "time": env.now}
+    crossroad = CrossRoad()
     direction = random.randint(1, 2)
 
-    if(direction == 1):
-            direction = "North"
+    if direction == 1:
+        direction = "North"
     else:
-            direction = "South"
+        direction = "South"
 
     """ The car process for the main road, each car has a name (being a number) passing the crossroad (cr)"""
     print("Main road car #%s approaches the crossroad from the %s direction at %.2f." % (name, direction, env.now))
+
+    # for i in range(4):
+    #     env.process(carM())
 
     while True:
         main_arrival_count += 1
@@ -109,7 +112,7 @@ def carL_arrival(): # Defining the arrival of a local car to the cross road.
 
     direction = random.randint(1, 2)
 
-    if (direction == 1):
+    if direction == 1:
         direction = "East"
     else:
         direction = "West"
@@ -128,7 +131,7 @@ def carL_arrival(): # Defining the arrival of a local car to the cross road.
         # yield env.process(cr.crossing(name))
 
         else:
-            print("Local road car #%d arrived to no cars oat the crossroad at time " " %.3f." % (local_arrival_count, env.now))
+            print("Local road car #%d arrived to no cars at the crossroad at time " " %.3f." % (local_arrival_count, env.now))
 
         # Record waiting time statistics.  (This car experienced zero waiting
         # time, so we increment the count of cars, but the cumulative waiting
